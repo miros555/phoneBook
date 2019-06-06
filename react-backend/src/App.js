@@ -1,5 +1,11 @@
 import React, { Component } from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {addToList} from './actions';
 import './App.css';
+import List from './components/list';
+import ToList from './components/addtolist';
+
 
 class App extends Component {
 	constructor(){
@@ -7,22 +13,18 @@ class App extends Component {
 
    this.state = {
    searchString:"",
-
    isOpened:false,
-
-  	users: []
+   users: []
 
   };
 
 }
 
 
-
-
   componentDidMount() {
     fetch('/users')
       .then(res => res.json())
-      .then(users => {this.setState({ users }); 
+      .then(users => {this.setState({ users });
       console.log({users}) } );
 
   }
@@ -30,13 +32,13 @@ class App extends Component {
 
 
 
-  handleChange = event => 
+  handleChange = event =>
 this.setState({
 	searchString:event.target.value
   });
 
 
- addCart=()=> 
+ addCart=()=>
  this.setState({isOpened:!this.state.isOpened});
 
 
@@ -44,13 +46,13 @@ this.setState({
 
   render() {
 
-var libraries = this.state.users;
+var list = this.state.users;
 
-            
+
  var searchString = this.state.searchString.trim().toLowerCase();
 
  if(searchString.length > 0){
- libraries = libraries.filter(function(l){
+ list= list.filter(function(l){
                 return l.firstname.toLowerCase().match( searchString );
             });
 
@@ -60,37 +62,35 @@ var libraries = this.state.users;
 let dropdownText;
 
 if (this.state.isOpened){
-	dropdownText = <div>Write firstname and surname of your friend<br/>
-<input name="firstName"/><br/>
-<input name="serName"/><br/>
-<input name="phone"/>
-	</div>;
+   dropdownText = <ToList/>
 }
 
 
     return (
       <div className="App">
-      
+
+<List/>
+
         <h1>Users</h1>
 
 
         <label>
 		<input type="text" onChange={this.handleChange}
-		 placeholder="Type here" />  <br/><br/>
+		 placeholder="Search" />  <br/><br/>
 	  <div>{this.state.searchString}</div>
 	  </label>
 
 
-<div>
+    <div>
 {/*<button onClick={this.componentReload.bind(this)}>Reload</button>*/}
 
-<button onClick={this.addCart.bind(this)}>Add Friend's Phone to List</button>
+<button onClick={this.addCart.bind(this)}>Click here to add to the list</button>
 {dropdownText}
-</div>
+   </div>
 
 
 <div>
-   <ul> { libraries.map((l,i)=>{ return <li key={i}>{l.phone} 
+   <ul> { list.map((l,i)=>{ return <li key={i}>{l.phone}
 	<a href={l.firstname}>{l.firstname}</a></li> }) }
    </ul>
 </div>
@@ -104,16 +104,17 @@ if (this.state.isOpened){
   }
 }
 
-export default App;
+
+const mapStateToProps=(state)=>{
+	return{
+	persons:state.persons,
+	users:state.users
+  }
+}
+
+const matchDispatchToProps=(dispatch)=>{
+	return bindActionCreators({addToList:addToList},dispatch)
+}
 
 
-
-
-
-
-
-
-
-
-
-
+export default connect(mapStateToProps, matchDispatchToProps)(App);
